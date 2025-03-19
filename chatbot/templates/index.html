@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f4; }
+        .chat-container { width: 50%; margin: auto; text-align: left; }
+        .user, .bot { padding: 10px; margin: 10px; border-radius: 5px; }
+        .user { background: #d1e7fd; text-align: right; }
+        .bot { background: #f1f1f1; text-align: left; }
+        input, button { margin-top: 10px; padding: 10px; width: 80%; }
+    </style>
+</head>
+<body>
+    <h2>AI Chatbot</h2>
+    <div class="chat-container" id="chat-container"></div>
+    <input type="text" id="user-input" placeholder="Type your message..." />
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        function appendMessage(role, text) {
+            let chatContainer = document.getElementById("chat-container");
+            let messageDiv = document.createElement("div");
+            messageDiv.className = role;
+            messageDiv.innerText = text;
+            chatContainer.appendChild(messageDiv);
+        }
+
+        async function sendMessage() {
+            let userInput = document.getElementById("user-input");
+            let message = userInput.value;
+            if (!message) return;
+
+            appendMessage("user", message);
+            userInput.value = "";
+
+            let response = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: message })
+            });
+
+            let data = await response.json();
+            if (data.reply) {
+                appendMessage("bot", data.reply);
+            } else {
+                appendMessage("bot", "Error: " + data.error);
+            }
+        }
+    </script>
+</body>
+</html>
